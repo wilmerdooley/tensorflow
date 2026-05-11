@@ -1,4 +1,4 @@
-/* Copyright 2022 The OpenXLA Authors.
+/* Copyright 2024 The TensorFlow Authors. All Rights Reserved.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -13,17 +13,26 @@ See the License for the specific language governing permissions and
 limitations under the License.
 ==============================================================================*/
 
-#include "xla/pjrt/gpu/se_gpu_pjrt_client.h"
-#include "xla/pjrt/pjrt_client_test.h"
+#include <gtest/gtest.h>
+#include "tensorflow/lite/experimental/shlo/legacy/include/shlo.h"
 
-namespace xla {
+namespace stablehlo {
 namespace {
 
-// Register GPU as the backend for tests in pjrt_client_test.cc.
-const bool kUnused = (RegisterTestClientFactory([]() {
-                        return GetStreamExecutorGpuClient(GpuClientOptions());
-                      }),
-                      true);
+TEST(ShapeTest, NumElementsEmpty) {
+  Shape shape;
+  EXPECT_EQ(shape.num_elements(), 0);
+}
+
+TEST(ShapeTest, NumElementsNonEmpty) {
+  Shape shape({2, 3});
+  EXPECT_EQ(shape.num_elements(), 6);
+}
+
+TEST(ShapeTest, NumElementsLargeDimensions) {
+  Shape shape({65536ULL, 45876ULL});
+  EXPECT_EQ(shape.num_elements(), 3006529536ULL);
+}
 
 }  // namespace
-}  // namespace xla
+}  // namespace stablehlo
