@@ -35,16 +35,16 @@ namespace python {
 void protobuf_inline_symbols_enforcer() {
   tensorflow::NamedDevice named_device;
   named_device.mutable_properties();
-  named_device.properties();
+  (void)named_device.properties();
 
   tensorflow::NamedDevice named_device_move(std::move(named_device));
   named_device_move.mutable_properties();
 
   tensorflow::quantization::ExportedModel exported_model;
-  exported_model.function_aliases();
+  (void)exported_model.function_aliases();
 
   tensorflow::profiler::XSpace x_space;
-  x_space.mutable_hostnames();
+  (void)x_space.mutable_hostnames();
   x_space.mutable_hostnames(0);
 
   tensorflow::dtensor::LayoutProto layout_proto;
