@@ -208,6 +208,9 @@ cc_library(
     deps = [
         ":xla_data_proto_cc",
         "//xla/hlo/ir:hlo",
+        "@com_google_absl//absl/container:flat_hash_set",
+        "@com_google_absl//absl/strings",
+        "@com_google_absl//absl/strings:string_view",
     ],
 )
 
@@ -1618,6 +1621,13 @@ bzl_library(
     srcs = ["restricted_package.bzl"],
     visibility = ["//visibility:private"],
     deps = ["//xla/tsl:package_groups_bzl"],
+)
+
+bzl_library(
+    name = "xla_default_bzl",
+    srcs = ["xla.default.bzl"],
+    # parse_tests = False,
+    visibility = ["//visibility:private"],
 )
 
 xla_bzl_library()

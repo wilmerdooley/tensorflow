@@ -1,5 +1,8 @@
 """TensorFlow workspace initialization. Consult the WORKSPACE on how to use it."""
 
+load("@aspect_rules_esbuild//esbuild:dependencies.bzl", "rules_esbuild_dependencies")
+load("@aspect_rules_js//js:repositories.bzl", "rules_js_dependencies")
+load("@aspect_rules_ts//ts:repositories.bzl", "rules_ts_dependencies")
 load("@bazel_features//:deps.bzl", "bazel_features_deps")
 load("@bazel_skylib//lib:versions.bzl", "versions")
 load("@bazel_tools//tools/build_defs/repo:java.bzl", "java_import_external")
@@ -45,6 +48,7 @@ load("//third_party/nccl:workspace.bzl", nccl = "repo")
 load("//third_party/net_zstd:workspace.bzl", net_zstd = "repo")
 load("//third_party/nvshmem:workspace.bzl", nvshmem = "repo")
 load("//third_party/nvtx:workspace.bzl", nvtx = "repo")
+load("//third_party/oneccl:workspace.bzl", oneccl_v1 = "repo_v1", oneccl_v2 = "repo_v2")
 load("//third_party/pthreadpool:workspace.bzl", pthreadpool = "repo")
 load("//third_party/py:python_configure.bzl", "python_configure")
 load("//third_party/py/ml_dtypes:workspace.bzl", ml_dtypes = "repo")
@@ -107,6 +111,8 @@ def _initialize_third_party():
     nvshmem()
     nvtx()
     onednn()
+    oneccl_v1()
+    oneccl_v2()
     pybind11_abseil()
     pybind11_bazel()
     pthreadpool()
@@ -125,6 +131,12 @@ def _initialize_third_party():
     uv()
     xnnpack()
     cutlass()
+    rules_js_dependencies()
+    rules_esbuild_dependencies()
+    rules_ts_dependencies(
+        ts_integrity = "sha512-mI4WrpHsbCIcwT9cF4FZvr80QUeKvsUsUvKDoR+X/7XHQH98xYD8YHZg7ANtz2GtZt/CBq2QJ0thkGJMHfqc1w==",
+        ts_version = "5.2.2",
+    )
 
     # copybara: tsl vendor
 

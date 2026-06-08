@@ -310,6 +310,7 @@ cc_library(
         "@com_google_absl//absl/status:statusor",
         "@com_google_absl//absl/strings",
         "@com_google_absl//absl/types:span",
+        "@llvm-project//llvm:Support",
         "@llvm-project//mlir:IR",
         "@tsl//tsl/platform:protobuf",
     ],
@@ -914,7 +915,7 @@ xla_cc_test(
 # bzl_library(
 #     name = "pjrt_ifrt_bzl",
 #     srcs = ["pjrt_ifrt.bzl"],
-#     parse_tests = False,
+#     # parse_tests = False,
 #     visibility = ["//visibility:private"],
 #     deps = ["//xla/tsl:package_groups_bzl"],
 # )
@@ -922,7 +923,7 @@ xla_cc_test(
 # bzl_library(
 #     name = "pjrt_ifrt_google_bzl",
 #     srcs = ["pjrt_ifrt.google.bzl"],
-#     parse_tests = False,
+#     # parse_tests = False,
 #     visibility = ["//visibility:private"],
 # )
 # copybara:uncomment_end

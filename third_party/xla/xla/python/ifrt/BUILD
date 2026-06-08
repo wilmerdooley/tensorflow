@@ -245,16 +245,15 @@ cc_library(
     ]),
     deps = [
         ":ifrt",
-        ":user_context",
+        ":value_util",
         "//xla/python/pjrt_ifrt:pjrt_layout",
         "//xla/tsl/concurrency:ref_count",
-        "//xla/tsl/platform:errors",
         "//xla/tsl/platform:status_macros",
-        "//xla/tsl/platform:statusor",
         "@com_google_absl//absl/status",
         "@com_google_absl//absl/status:statusor",
         "@com_google_absl//absl/strings",
         "@com_google_absl//absl/types:span",
+        "@llvm-project//llvm:Support",
     ],
 )
 
@@ -1544,7 +1543,7 @@ xla_cc_test(
 # bzl_library(
 #     name = "ifrt_bzl",
 #     srcs = ["ifrt.bzl"],
-#     parse_tests = False,
+#     # parse_tests = False,
 #     visibility = ["//visibility:private"],
 #     deps = ["//xla/tsl:package_groups_bzl"],
 # )
@@ -1552,7 +1551,7 @@ xla_cc_test(
 # bzl_library(
 #     name = "ifrt_google_bzl",
 #     srcs = ["ifrt.google.bzl"],
-#     parse_tests = False,
+#     # parse_tests = False,
 #     visibility = ["//visibility:private"],
 # )
 # copybara:uncomment_end
