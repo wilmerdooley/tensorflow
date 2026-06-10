@@ -1,4 +1,4 @@
-/* Copyright 2025 The OpenXLA Authors.
+/* Copyright 2024 The TensorFlow Authors. All Rights Reserved.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -13,17 +13,26 @@ See the License for the specific language governing permissions and
 limitations under the License.
 ==============================================================================*/
 
-#ifndef XLA_STREAM_EXECUTOR_DEVICE_MEMORY_HANDLE_H_
-#define XLA_STREAM_EXECUTOR_DEVICE_MEMORY_HANDLE_H_
+#include <gtest/gtest.h>
+#include "tensorflow/lite/experimental/shlo/legacy/include/shlo.h"
 
-#include "absl/base/macros.h"
-#include "xla/stream_executor/device_address_handle.h"
+namespace stablehlo {
+namespace {
 
-namespace stream_executor {
-
-using DeviceMemoryHandle ABSL_DEPRECATE_AND_INLINE() =
-    ::stream_executor::DeviceAddressHandle;
-
+TEST(ShapeTest, NumElementsEmpty) {
+  Shape shape;
+  EXPECT_EQ(shape.num_elements(), 0);
 }
 
-#endif  // XLA_STREAM_EXECUTOR_DEVICE_MEMORY_HANDLE_H_
+TEST(ShapeTest, NumElementsNonEmpty) {
+  Shape shape({2, 3});
+  EXPECT_EQ(shape.num_elements(), 6);
+}
+
+TEST(ShapeTest, NumElementsLargeDimensions) {
+  Shape shape({65536ULL, 45876ULL});
+  EXPECT_EQ(shape.num_elements(), 3006529536ULL);
+}
+
+}  // namespace
+}  // namespace stablehlo
