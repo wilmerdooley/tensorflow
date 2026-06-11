@@ -133,7 +133,6 @@ class GpuExecutable : public Executable {
   };
 
   struct Params {
-    std::string asm_text;
     std::vector<uint8_t> binary;
     BinaryMap dnn_compiled_graphs;
     std::unique_ptr<ThunkExecutor> executable;
@@ -152,15 +151,13 @@ class GpuExecutable : public Executable {
     se::ExecutableAbiVersion executable_abi_version;
     std::optional<xla::cpu::TargetMachineOptions> cpu_target_machine_options;
     std::optional<BufferAssignmentProto> buffer_assignment_proto;
+    std::string buffer_allocations_debug_summary;
   };
 
   static absl::StatusOr<std::unique_ptr<GpuExecutable>> Create(Params params);
   ~GpuExecutable() override;
 
   int64_t SizeOfGeneratedCodeInBytes() const override;
-
-  // This should be called after set_ir_module_string.
-  const std::string& ir_module_string() const { return ir_module_string_; }
 
   absl::string_view name() const override { return module_name_; }
 
@@ -173,19 +170,6 @@ class GpuExecutable : public Executable {
   ComputationLayout compute_computation_layout() const override {
     return ComputationLayout(program_shape_, /*ignore_layouts=*/false);
   }
-
-  // This should be called before ExecuteOnStream.
-  void set_ir_module_string(const std::string& ir_module_string) {
-    ir_module_string_ = ir_module_string;
-  }
-
-  // Returns the compiled code for the computation.
-  //
-  // The compiled code is PTX in Cuda and unused empty string in ROCm.
-  // This may be left empty for saving memory if we have a non-empty binary.
-  // If both text() and binary() are empty, that means the HLO required no
-  // custom kernels to be compiled.
-  const std::string& text() const { return text_; }
 
   // Returns the binary stored in this GpuExecutable.
   //
@@ -240,6 +224,13 @@ class GpuExecutable : public Executable {
     return buffer_assignment_.get();
   }
 
+  // Human readable summary of the buffer allocations. Tailored to debugging
+  // OOMs, includes the Hlo op metadata for every buffer associated with each
+  // allocation.
+  const std::string& buffer_allocations_debug_summary() const {
+    return buffer_allocations_debug_summary_;
+  }
+
   // Returns the proto representation of `buffer_assignment()` if available,
   // otherwise returns the stored buffer assignment proto if available. Returns
   // nullopt if neither is available.
@@ -288,8 +279,6 @@ class GpuExecutable : public Executable {
       BufferAllocations& buffer_allocations, const ShapeIndex& index,
       const BufferAllocation& allocation, int device_ordinal,
       se::DeviceAddressAllocator* memory_allocator);
-
-  absl::Status VerboseAllocationError(absl::Status s);
 
   static absl::StatusOr<std::unique_ptr<GpuExecutable>> FromProto(
       const GpuExecutableProto&,
@@ -346,9 +335,8 @@ class GpuExecutable : public Executable {
 
   // Use GpuExecutable::Create() to create an instance.
   explicit GpuExecutable(
-      std::unique_ptr<HloModule> debug_module, std::string asm_text,
-      std::vector<uint8_t> binary, BinaryMap dnn_compiled_graphs,
-      se::DeviceDescription device_description,
+      std::unique_ptr<HloModule> debug_module, std::vector<uint8_t> binary,
+      BinaryMap dnn_compiled_graphs, se::DeviceDescription device_description,
       std::unique_ptr<ThunkExecutor> executable, std::string module_name,
       ProgramShape program_shape,
       std::optional<std::vector<BufferAllocation>> mlir_allocations,
@@ -361,7 +349,8 @@ class GpuExecutable : public Executable {
       absl::StatusOr<std::vector<ThunkProto>> thunk_sequence_proto,
       se::ExecutableAbiVersion executable_abi_version,
       std::optional<xla::cpu::TargetMachineOptions> cpu_target_machine_options,
-      std::optional<BufferAssignmentProto> buffer_assignment_proto);
+      std::optional<BufferAssignmentProto> buffer_assignment_proto,
+      std::string buffer_allocations_debug_summary);
 
   // GpuExecutable check with either AMD's ISA version, or Nvidia's major minor
   // version for compute capability, depending on the hardware.
@@ -401,16 +390,6 @@ class GpuExecutable : public Executable {
       CollectiveMemoryCache& collective_memory_cache,
       bool collective_use_minimal_resource);
 
-  // The LLVM IR, in string format, of the unoptimized module generated for
-  // this GpuExecutable. We save a string instead of an llvm::Module* because
-  // leaving llvm::Module* in a singleton can cause the heap checker to emit
-  // false positives.
-  //
-  // This string should be modified only before ExecuteOnStream.
-  std::string ir_module_string_;
-
-  // The compiled code for the computation.
-  const std::string text_;
 
   // The GPU machine code for the computation, targeting GPUs at
   // compute_capability_.
@@ -526,6 +505,11 @@ class GpuExecutable : public Executable {
   std::optional<xla::cpu::TargetMachineOptions> cpu_target_machine_options_;
 
   CollectiveMemoryCache collective_memory_cache_;
+
+  // Human readable summary of the buffer allocations. Tailored to debugging
+  // OOMs, includes the Hlo op metadata for every buffer associated with each
+  // allocation.
+  std::string buffer_allocations_debug_summary_;
 };
 
 absl::StatusOr<absl::flat_hash_map<ShapeIndex, GpuExecutable::OutputInfo>>
