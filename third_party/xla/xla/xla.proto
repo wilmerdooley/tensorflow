@@ -92,8 +92,10 @@ message DebugOptions {
     CUSTOM_CALL = 7;
     CUBLASLT = 8;
     DYNAMIC_SLICE_FUSION = 9;
-    DYNAMIC_SLICE_COPY_FUSION = 10;
     CONVOLUTION = 11;
+
+    reserved "DYNAMIC_SLICE_COPY_FUSION";
+    reserved 10;
   }
 
   enum LibNvJitLinkMode {
@@ -804,7 +806,9 @@ message DebugOptions {
   optional AutotuneCacheMode xla_gpu_experimental_autotune_cache_mode = 324;
 
   // If true, all autotuning is consolidated after fusion passes.
-  optional bool xla_gpu_experimental_autotune_post_fusion = 481;
+  // Deprecated, autotune post fusion is always enabled.
+  optional bool xla_gpu_experimental_autotune_post_fusion = 481
+      [deprecated = true];
 
   // Specifies the directory to store per kernel autotuning cache.
   optional string xla_gpu_experimental_autotuner_cache_dir = 407;
