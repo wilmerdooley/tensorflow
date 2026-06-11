@@ -2605,6 +2605,7 @@ TEST(ResamplerOperationParserTest, TestIsSupported) {
                                                 /*op_version=*/1,
                                                 /*num_inputs=*/2);
   context->registration()->custom_name = "Resampler";
+  context->tensors[context->node()->inputs->data[1]].dims->data[3] = 2;
   ASSERT_TRUE(
       parser
           ->IsSupported(context.get(), context->node(), context->registration())
